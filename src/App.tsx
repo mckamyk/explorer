@@ -1,8 +1,9 @@
-import Dashboard from './dashboard'
+import { RouterProvider } from '@tanstack/react-router'
+import { router } from './routes'
 
 function App() {
   return (
-    <Dashboard />
+    <RouterProvider router={router} />
   )
 }
 
