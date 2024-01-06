@@ -12,10 +12,10 @@ export const timeDiff = (timestamp: number): string => {
   const minute = new Date(0).setUTCMinutes(0)
 
   return (
-    d > year ? `>${Math.floor(d / year)} year(s) ago` :
-      d > day ? `>${Math.floor(d / day)} day(s) ago` :
-        d > hour ? `>${Math.floor(d / hour)} hour(s) ago` :
-          d > minute ? `>${Math.floor(d / minute)} minute(s) ago` : `${d / 1000} second(s) ago`
+    d > year ? `${Math.floor(d / year)} year${Math.floor(d / year) > 1 ? 's' : ''}` :
+      d > day ? `${Math.floor(d / day)} day${Math.floor(d / day) > 1 ? 's' : ''}` :
+        d > hour ? `${Math.floor(d / hour)} hour${Math.floor(d / hour) > 1 ? 's' : ''}` :
+          d > minute ? `${Math.floor(d / minute)} minute${Math.floor(d / minute) > 1 ? 's' : ''}` : `${d / 1000} seconds`
   )
 
 }

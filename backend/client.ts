@@ -5,7 +5,8 @@ import { hexString } from "../src/utilities/zod";
 
 export const client = createPublicClient({
   transport: webSocket("ws://10.0.8.1:30845"),
-  chain: mainnet
+  chain: mainnet,
+
 })
 
 export type LatestBlocksSummaryReturn = {
@@ -99,7 +100,13 @@ export const getBlocks = async ({ page, pageSize }: z.infer<typeof getBlocksArgs
   }
 
   const blocks = await Promise.all(numbers.map(blockNumber => client.getBlock({ blockNumber, includeTransactions: true })))
-  const formatted = blocks.map(b => {
+  const formatted = blocks.map(async b => {
+    const burned = maybeBigInt(b.baseFeePerGas) * b.gasUsed
+    const fees = b.transactions.map(async t => {
+      const receipt = await client.getTransactionReceipt({ hash: t.hash })
+      return receipt.gasUsed * (t.gasPrice! - b.baseFeePerGas!)
+    })
+
     return {
       timestamp: b.timestamp * BigInt(1000),
       number: b.number,
@@ -107,31 +114,21 @@ export const getBlocks = async ({ page, pageSize }: z.infer<typeof getBlocksArgs
         used: b.gasUsed,
         limit: b.gasLimit
       },
-      reward: b.transactions.map(t => t.gas * calculateTransactionReward(t)).reduce((c, p) => c + p),
+      reward: await Promise.all(fees).then(fee => fee.reduce((p, c) => p + c)),
       numTxns: b.transactions.length,
       baseFee: b.baseFeePerGas,
-      burntFees: maybeBigInt(b.baseFeePerGas) * b.gasUsed,
+      burntFees: burned,
       recipient: b.miner
     }
   })
 
-  return getBlocksReturn.parse(formatted)
+  return getBlocksReturn.parse(await Promise.all(formatted))
 }
 
-const calculateTransactionReward = (tx: GetTransactionReturnType): bigint => {
-  const price = tx.gasPrice
-  const max = tx.maxFeePerGas
-  const prio = tx.maxPriorityFeePerGas
+export const calculateTransactionReward = (tx: GetTransactionReturnType, base: bigint): bigint => {
+  const price = tx.gasPrice!
 
-  if (!!prio && !!max && !!price) {
-    const diff = max - price
-    return diff > prio ? prio : diff
-  } else if (!!max && !!price) {
-    return max - price
-  } else if (!!prio) {
-    return prio
-  }
-  return BigInt(0)
+  return price - base
 }
 
 const maybeBigInt = (n: bigint | null | undefined): bigint => {
