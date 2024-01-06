@@ -1,5 +1,7 @@
-import { Address, createPublicClient, webSocket } from "viem";
+import { Address, GetTransactionReturnType, createPublicClient, webSocket } from "viem";
 import { mainnet } from "viem/chains";
+import { z } from 'zod'
+import { hexString } from "../src/utilities/zod";
 
 export const client = createPublicClient({
   transport: webSocket("ws://10.0.8.1:30845"),
@@ -67,4 +69,71 @@ export const latestTransactions = async (): Promise<LatestTransactionsReturn> =>
     }
   })
 
+}
+
+export const getBlocksReturn = z.array(z.object({
+  number: z.number({ coerce: true }),
+  timestamp: z.number({ coerce: true }),
+  numTxns: z.number(),
+  recipient: hexString,
+  gas: z.object({
+    used: z.number({ coerce: true }),
+    limit: z.number({ coerce: true })
+  }),
+  baseFee: z.number({ coerce: true }),
+  reward: z.number({ coerce: true }),
+  burntFees: z.number({ coerce: true })
+}))
+
+export const getBlocksArgs = z.object({
+  pageSize: z.number().default(20),
+  page: z.number().default(0)
+})
+
+export const getBlocks = async ({ page, pageSize }: z.infer<typeof getBlocksArgs>): Promise<z.infer<typeof getBlocksReturn>> => {
+  const currentBlock = await client.getBlockNumber();
+
+  const numbers: bigint[] = []
+  for (let i = page * pageSize; i < page * pageSize + pageSize; i++) {
+    numbers.push(currentBlock - BigInt(i))
+  }
+
+  const blocks = await Promise.all(numbers.map(blockNumber => client.getBlock({ blockNumber, includeTransactions: true })))
+  const formatted = blocks.map(b => {
+    return {
+      timestamp: b.timestamp * BigInt(1000),
+      number: b.number,
+      gas: {
+        used: b.gasUsed,
+        limit: b.gasLimit
+      },
+      reward: b.transactions.map(t => t.gas * calculateTransactionReward(t)).reduce((c, p) => c + p),
+      numTxns: b.transactions.length,
+      baseFee: b.baseFeePerGas,
+      burntFees: maybeBigInt(b.baseFeePerGas) * b.gasUsed,
+      recipient: b.miner
+    }
+  })
+
+  return getBlocksReturn.parse(formatted)
+}
+
+const calculateTransactionReward = (tx: GetTransactionReturnType): bigint => {
+  const price = tx.gasPrice
+  const max = tx.maxFeePerGas
+  const prio = tx.maxPriorityFeePerGas
+
+  if (!!prio && !!max && !!price) {
+    const diff = max - price
+    return diff > prio ? prio : diff
+  } else if (!!max && !!price) {
+    return max - price
+  } else if (!!prio) {
+    return prio
+  }
+  return BigInt(0)
+}
+
+const maybeBigInt = (n: bigint | null | undefined): bigint => {
+  return n ? n : BigInt(0)
 }

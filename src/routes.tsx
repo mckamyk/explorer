@@ -1,27 +1,29 @@
 import { Outlet, RootRoute, Route, Router } from '@tanstack/react-router'
-import dashboard from './dashboard'
-import blocks from './dashboard/blocks'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
+import Dashboard from './dashboard'
+import Blocks from './block'
+import Header from './header'
 
 const rootRoute = new RootRoute({
-  component: () => {
-    <>
+  component: () => (
+    <div>
+      <Header />
       <Outlet />
       <TanStackRouterDevtools />
-    </>
-  }
+    </div>
+  )
 })
 
 const indexRoute = new Route({
   getParentRoute: () => rootRoute,
   path: '/',
-  component: dashboard
+  component: () => <Dashboard />
 })
 
 const blocksRoute = new Route({
   getParentRoute: () => rootRoute,
-  path: '/blocks',
-  component: blocks
+  path: '/block',
+  component: () => <Blocks />
 })
 
 const routeTree = rootRoute.addChildren([indexRoute, blocksRoute])
