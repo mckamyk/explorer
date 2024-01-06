@@ -1,10 +1,8 @@
-import { trpc } from './Providers'
+import Dashboard from './dashboard'
 
 function App() {
-  const { data } = trpc.hello.useQuery("jim")
-
   return (
-    <div>{data}</div>
+    <Dashboard />
   )
 }
 
