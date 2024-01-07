@@ -2,12 +2,42 @@ import { Address, GetTransactionReturnType, createPublicClient, webSocket } from
 import { mainnet } from "viem/chains";
 import { z } from 'zod'
 import { hexString } from "../src/utilities/zod";
+import { blockLight, blockWithTransactions } from "./zod/blocks";
 
 export const client = createPublicClient({
   transport: webSocket("ws://10.0.8.1:30845"),
   chain: mainnet,
-
 })
+
+export const getNetworkBlockLight = async (blockNumber: bigint) => {
+  const b = await client.getBlock({ blockNumber })
+  return blockLight.parse({
+    ...b, timestamp: Number(b.timestamp) * 1000
+  })
+}
+
+export const getNetworkBlockFull = async (blockNumber: bigint) => {
+  const b = await client.getBlock({ blockNumber, includeTransactions: true })
+
+  const fees = b.transactions.map(async t => {
+    const receipt = await client.getTransactionReceipt({ hash: t.hash })
+    return receipt.gasUsed * (t.gasPrice! - b.baseFeePerGas!)
+  })
+
+  return blockWithTransactions.parse({
+    timestamp: b.timestamp * BigInt(1000),
+    number: b.number,
+    gasUsed: b.gasUsed,
+    gasLimit: b.gasLimit,
+    reward: await Promise.all(fees).then(fee => fee.reduce((p, c) => p + c)),
+    numTxns: b.transactions.length,
+    baseFee: b.baseFeePerGas,
+    burntFees: b.baseFeePerGas! * b.gasUsed,
+    recipient: b.miner,
+    transactions: b.transactions,
+    hash: b.hash
+  })
+}
 
 export type LatestBlocksSummaryReturn = {
   hash: string;
