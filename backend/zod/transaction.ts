@@ -8,6 +8,7 @@ export const txDefault = z.object({
   hash: z.string().startsWith("0x"),
   timestamp: z.number({ coerce }),
   value: z.bigint({ coerce }),
+  blockNumber: z.bigint({ coerce }),
 }).transform(tx => {
   return {
     ...tx,
@@ -23,7 +24,8 @@ export const txDb = z.object({
   to: z.string().startsWith("0x").optional(),
   hash: z.string().startsWith("0x"),
   timestamp: z.number({ coerce }),
-  value: z.string({ coerce })
+  value: z.string({ coerce }),
+  blockNumber: z.number({ coerce }),
 }).transform(tx => {
   return {
     ...tx,

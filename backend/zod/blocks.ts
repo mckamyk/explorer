@@ -3,7 +3,7 @@ import { txDefault } from './transaction'
 
 const coerce = true
 
-export const blockBase = z.object({
+export const blockDefault = z.object({
   number: z.bigint({ coerce }),
   hash: z.string().startsWith("0x"),
   recipient: z.string().startsWith("0x"),
@@ -13,19 +13,19 @@ export const blockBase = z.object({
   gasLimit: z.bigint({ coerce }),
   baseFee: z.bigint({ coerce }),
   burntFees: z.bigint({ coerce }),
-  transactions: z.array(z.string()),
-})
-
-export type BlockBase = z.infer<typeof blockBase>
-
-export const blockLight = blockBase.transform(b => {
+  transactions: z.array(txDefault),
+}).transform(block => {
   return {
-    ...b,
-    toDb: () => blockDb.parse(b)
+    ...block,
+    toDb: () => {
+      const newBlock = { ...block } as any
+      delete newBlock['transactions']
+      return blockDb.parse(newBlock)
+    }
   }
 })
 
-export type BlockDefault = z.infer<typeof blockLight>
+export type BlockDefault = z.infer<typeof blockDefault>
 
 export const blockDb = z.object({
   number: z.number({ coerce }),
@@ -37,31 +37,7 @@ export const blockDb = z.object({
   gasLimit: z.string({ coerce }),
   baseFee: z.number({ coerce }),
   burntFees: z.string({ coerce }),
-  transactions: z.array(z.string()).transform(a => JSON.stringify(a)),
-}).transform(b => {
-  return {
-    ...b,
-    toLight: () => blockLight.parse(b),
-  }
-})
+}).strict()
 
 export type BlockDb = z.infer<typeof blockDb>
-
-export const blockWithTransactions = blockBase.extend({
-  transactions: z.array(txDefault)
-}).transform(b => {
-  return {
-    ...b,
-    toDefault: () => blockLight.parse({
-      ...b,
-      transactions: b.transactions.map(t => t.hash)
-    }),
-    toDb: () => blockDb.parse({
-      ...b,
-      transaction: b.transactions.map(t => t.hash)
-    })
-  }
-})
-
-export type BlockWithTransactions = z.infer<typeof blockWithTransactions>
 

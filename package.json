@@ -13,6 +13,7 @@
   "dependencies": {
     "@heroicons/react": "^2.1.1",
     "@hono/trpc-server": "^0.1.0",
+    "@libsql/client": "^0.4.0-pre.7",
     "@tanstack/react-query": "^4",
     "@tanstack/react-router": "^1.1.7",
     "@trpc/client": "^10.45.0",
@@ -20,6 +21,7 @@
     "@trpc/server": "^10.45.0",
     "autoprefixer": "^10.4.16",
     "bun-types": "^1.0.21",
+    "drizzle-kit": "^0.20.10",
     "drizzle-orm": "^0.29.3",
     "drizzle-zod": "^0.5.1",
     "hono": "^3.12.0",

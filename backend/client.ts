@@ -2,21 +2,14 @@ import { Address, GetTransactionReturnType, createPublicClient, webSocket } from
 import { mainnet } from "viem/chains";
 import { z } from 'zod'
 import { hexString } from "../src/utilities/zod";
-import { blockLight, blockWithTransactions } from "./zod/blocks";
+import { blockDefault } from "./zod/blocks";
 
 export const client = createPublicClient({
   transport: webSocket("ws://10.0.8.1:30845"),
   chain: mainnet,
 })
 
-export const getNetworkBlockLight = async (blockNumber: bigint) => {
-  const b = await client.getBlock({ blockNumber })
-  return blockLight.parse({
-    ...b, timestamp: Number(b.timestamp) * 1000
-  })
-}
-
-export const getNetworkBlockFull = async (blockNumber: bigint) => {
+export const getNetworkBlock = async (blockNumber: bigint) => {
   const b = await client.getBlock({ blockNumber, includeTransactions: true })
 
   const fees = b.transactions.map(async t => {
@@ -24,8 +17,14 @@ export const getNetworkBlockFull = async (blockNumber: bigint) => {
     return receipt.gasUsed * (t.gasPrice! - b.baseFeePerGas!)
   })
 
-  return blockWithTransactions.parse({
-    timestamp: b.timestamp * BigInt(1000),
+  const txns = b.transactions.map(t => ({
+    ...t,
+    timestamp: Number(b.timestamp) * 1000,
+    blockNumber: b.number,
+  }))
+
+  return blockDefault.parse({
+    timestamp: Number(b.timestamp) * 1000,
     number: b.number,
     gasUsed: b.gasUsed,
     gasLimit: b.gasLimit,
@@ -34,7 +33,7 @@ export const getNetworkBlockFull = async (blockNumber: bigint) => {
     baseFee: b.baseFeePerGas,
     burntFees: b.baseFeePerGas! * b.gasUsed,
     recipient: b.miner,
-    transactions: b.transactions,
+    transactions: txns,
     hash: b.hash
   })
 }
