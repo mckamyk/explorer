@@ -1,8 +1,11 @@
-import { Address, GetTransactionReturnType, createPublicClient, webSocket } from "viem";
+import { GetTransactionReturnType, createPublicClient, webSocket } from "viem";
 import { mainnet } from "viem/chains";
 import { z } from 'zod'
 import { hexString } from "../src/utilities/zod";
-import { blockDefault } from "./zod/blocks";
+import { BlockLight, blockDefault } from "./zod/blocks";
+import { tryGetBlockLight } from "./api/blocks";
+import { getTransactionsInBLock } from "./api/transactions";
+import { TxDefault } from "./zod/transaction";
 
 export const client = createPublicClient({
   transport: webSocket("ws://10.0.8.1:30845"),
@@ -38,67 +41,25 @@ export const getNetworkBlock = async (blockNumber: bigint) => {
   })
 }
 
-export type LatestBlocksSummaryReturn = {
-  hash: string;
-  number: number;
-  timestamp: number;
-  numTxns: number;
-  recipient: Address;
-  value: number;
-}[]
-
-export const latestBlocksSummary = async (): Promise<LatestBlocksSummaryReturn> => {
+export const latestBlocksSummary = async (): Promise<BlockLight[]> => {
   const blockNumber = await client.getBlockNumber().catch(console.error)
   if (!blockNumber) return []
 
-  const a: bigint[] = []
+  const proms: Promise<BlockLight>[] = []
   for (let i = 0; i < 10; i++) {
-    a.push(blockNumber - BigInt(i))
+    const number = blockNumber - BigInt(i)
+    proms.push(tryGetBlockLight(number))
   }
 
-  const blocks = await Promise.all(a.map(blockNumber => client.getBlock({ blockNumber, includeTransactions: true })))
-  const enriched: LatestBlocksSummaryReturn = blocks.map(block => {
-    return {
-      number: Number(block.number),
-      hash: block.hash,
-      timestamp: Number(block.timestamp) * 1000,
-      numTxns: block.transactions.length || 0,
-      recipient: block.miner,
-      value: Number(block.transactions.reduce((p, c) => p + (c.gasPrice || BigInt(0)) * c.gas, BigInt(0)))
-    }
-  })
-
-  return enriched
+  return Promise.all(proms)
 }
 
-type LatestTransactionsReturn = {
-  from: Address,
-  to?: Address,
-  hash: string,
-  timestamp: number,
-  value: string,
-}[]
+export const latestTransactions = async (): Promise<TxDefault[]> => {
+  const blockNumber = await client.getBlockNumber();
+  const transactions = await getTransactionsInBLock(blockNumber)
+  if (transactions.length < 10) transactions.push(...(await getTransactionsInBLock(blockNumber - BigInt(1))))
 
-export const latestTransactions = async (): Promise<LatestTransactionsReturn> => {
-  const lastBlock = await client.getBlock({ includeTransactions: true });
-  const prevBlock = await client.getBlock({ blockNumber: lastBlock.number - BigInt(1), includeTransactions: true })
-
-  let txns = lastBlock.transactions.slice(lastBlock.transactions.length - 10)
-  if (txns.length < 10) {
-    const older = prevBlock.transactions.slice(prevBlock.transactions.length - 10 + txns.length)
-    txns = [...older, ...txns]
-  }
-
-  return txns.map(t => {
-    return {
-      value: t.value.toString(),
-      timestamp: Number(lastBlock.number === t.blockNumber ? lastBlock.timestamp : prevBlock.timestamp) * 1000,
-      to: t.to || undefined,
-      from: t.from,
-      hash: t.hash
-    }
-  })
-
+  return transactions.slice(0, 10)
 }
 
 export const getBlocksReturn = z.array(z.object({

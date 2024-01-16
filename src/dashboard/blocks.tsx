@@ -5,7 +5,7 @@ import { shortAddr, timeDiff } from '../utilities/utils';
 import { Link } from '@tanstack/react-router';
 
 export default () => {
-  const { data, isLoading } = trpc.latestBlocks.useQuery();
+  const { data, isLoading } = trpc.latestBlocks.useQuery()
 
   return (
     <div className="w-[600px] bg-black/25 rounded-lg shadow shadow-white/25 overflow-clip">
@@ -16,17 +16,17 @@ export default () => {
           <div key={block.hash} className="h-[65px] flex gap-4 border-b-white/20 border-b last:border-b-0 items-center py-2">
             <CubeIcon className="h-8 w-8 text-gray-700" />
             <div className="flex flex-col items-center">
-              <div>{block.number}</div>
+              <div>{block.number.toLocaleString()}</div>
               <div className="text-xs">{timeDiff(block.timestamp)}</div>
             </div>
 
             <div className="flex flex-col items-center grow">
               <div>Fee Recipient: {shortAddr(block.recipient)}</div>
-              <div>{block.numTxns} transactions</div>
+              <div>{block.numTransactions} transactions</div>
             </div>
 
             <div className="rounded-full bg-white/10 px-3 py-1">
-              {Number(formatEther(BigInt(block.value))).toFixed(3)} eth
+              {Number(formatEther(BigInt(block.reward))).toFixed(3)} eth
             </div>
           </div>
         ))}

@@ -7,7 +7,7 @@ const blockBase = z.object({
   number: z.bigint({ coerce }),
   hash: z.string().startsWith("0x"),
   recipient: z.string().startsWith("0x"),
-  reward: z.bigint({ coerce }).optional(),
+  reward: z.bigint({ coerce }),
   timestamp: z.number({ coerce }),
   gasUsed: z.bigint({ coerce }),
   gasLimit: z.bigint({ coerce }),
