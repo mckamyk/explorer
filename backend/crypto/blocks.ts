@@ -1,7 +1,7 @@
 import { blockDefault } from "../zod/blocks"
 import { client } from "./client"
 
-export const getNetworkBlockFull = async (blockNumber: bigint) => {
+export const getNetworkBlock = async (blockNumber: bigint) => {
   const b = await client.getBlock({ blockNumber, includeTransactions: true })
 
   const fees = b.transactions.map(async t => {
@@ -23,11 +23,11 @@ export const getNetworkBlockFull = async (blockNumber: bigint) => {
     gasUsed: b.gasUsed,
     gasLimit: b.gasLimit,
     reward: await Promise.all(fees).then(fee => fee.reduce((p, c) => p + c)),
-    numTxns: b.transactions.length,
     baseFee: b.baseFeePerGas,
     burntFees: b.baseFeePerGas! * b.gasUsed,
     recipient: b.miner,
     transactions: newTx,
-    hash: b.hash
+    hash: b.hash,
+    numTransactions: b.transactions.length,
   })
 }

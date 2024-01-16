@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "4b73169d-4830-49db-a26f-73929f72e697",
+  "id": "f2912a76-9f9f-417a-9a4d-5adff59ab20d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "blocks": {
@@ -66,6 +66,13 @@
         "burntFees": {
           "name": "burntFees",
           "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "numTransactions": {
+          "name": "numTransactions",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false

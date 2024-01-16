@@ -11,6 +11,7 @@ export const blocks = sqliteTable('blocks', {
   gasLimit: text('gasLimit').notNull(),
   baseFee: integer('baseFee').notNull(),
   burntFees: text('burntFees').notNull(),
+  numTransactions: integer('numTransactions').notNull()
 })
 
 export type Block = typeof blocks.$inferSelect
