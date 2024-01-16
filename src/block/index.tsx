@@ -23,20 +23,20 @@ export default () => {
         <div className="flex flex-col">
           {data && data.map(block => (
             <div key={block.number} className="bg-black grid grid-cols-10 px-2 py-2 border-b border-b-white/15 items-center">
-              <div className="text-center">{block.number}</div>
+              <div className="text-center">{block.number.toLocaleString()}</div>
               <div className="text-center">{timeDiff(block.timestamp)}</div>
-              <div className="text-center">{block.numTxns}</div>
+              <div className="text-center">{block.numTransactions}</div>
               <div>{shortAddr(block.recipient)}</div>
               <div className="col-span-2 px-1">
                 <div className="flex justify-between items-end">
-                  <span>{block.gas.used.toLocaleString()}</span>
+                  <span>{block.gasUsed.toLocaleString()}</span>
                   <span className="text-xs text-gray-500">
-                    ({(block.gas.used / block.gas.limit * 100).toFixed(0)}%)
+                    ({(Number(block.gasUsed) / Number(block.gasLimit) * 100).toFixed(0)}%)
                   </span>
                 </div>
-                <Progress pct={block.gas.used / block.gas.limit} />
+                <Progress pct={Number(block.gasUsed) / Number(block.gasLimit)} />
               </div>
-              <div className="text-center">{block.gas.limit.toLocaleString()}</div>
+              <div className="text-center">{block.gasLimit.toLocaleString()}</div>
               <div className="text-center">{Number(formatEther(BigInt(block.baseFee), 'gwei')).toFixed(4)} <span className="text-xs text-gray-500">Gwei</span></div>
               <div className="text-center">{Number(formatEther(BigInt(block.reward))).toFixed(4)} <span className="text-xs text-gray-500">ETH</span></div>
               <div className="text-center">{Number(formatEther(BigInt(block.burntFees))).toFixed(4)} <span className="text-xs text-gray-500">ETH</span></div>

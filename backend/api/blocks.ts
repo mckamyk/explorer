@@ -1,10 +1,11 @@
-import { eq, } from 'drizzle-orm'
+import { and, eq, gte, lte, } from 'drizzle-orm'
 import { client } from '../crypto/client.ts'
 import db from '../db'
-import { BlockDefault, BlockLight, blockDefault } from '../zod/blocks.ts'
+import { BlockDefault, BlockLight, blockDefault, blockLight } from '../zod/blocks.ts'
 import { getNetworkBlock } from '../crypto/blocks'
 import { blocks, transactions } from '../db/schema.ts'
 import { getDbBlock, getDbBlockLight } from '../db/blocks.ts'
+import { z } from 'zod'
 
 export const tryGetBlockLight = async (number: bigint): Promise<BlockLight> => {
   const fromDb = await getDbBlockLight(number)
@@ -29,6 +30,7 @@ export const tryGetBlock = async (number: bigint): Promise<BlockDefault> => {
   if (fromDb) {
     return blockDefault.parse(fromDb)
   } else {
+    console.log(`Cache miss on ${number}`)
     const b = await getNetworkBlock(number)
     const blk = blockDefault.parse(b)
     await Promise.all([
@@ -55,4 +57,35 @@ export const getLatestBlocks = async () => {
 
   const blocks = await Promise.all(outBlocks);
   return blocks
+}
+
+export const getBlocksArgs = z.object({
+  pageSize: z.number().default(20),
+  page: z.number().default(0)
+})
+
+export const getBlocks = async ({ page, pageSize }: z.infer<typeof getBlocksArgs>): Promise<BlockLight[]> => {
+  const currentBlock = await client.getBlockNumber();
+
+  const numbers: bigint[] = []
+  for (let i = page * pageSize; i < page * pageSize + pageSize; i++) {
+    numbers.push(currentBlock - BigInt(i))
+  }
+
+  const min = Number(numbers.sort()[0])
+  const max = Number(numbers.sort()[numbers.length - 1])
+
+  const dbNumbers = await db.query.blocks.findMany({
+    where: and(lte(blocks.number, max), gte(blocks.number, min)),
+    columns: { number: true }
+  }).then(r => r.map(({ number }) => BigInt(number)))
+
+  const missing = numbers.filter(n => !dbNumbers.includes(n))
+  await Promise.all(missing.map(tryGetBlock))
+
+  const allBlocks = db.query.blocks.findMany({
+    where: and(lte(blocks.number, max), gte(blocks.number, min)),
+  }).then(r => r.map(b => blockLight.parse(b)))
+
+  return allBlocks
 }

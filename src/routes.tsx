@@ -3,6 +3,7 @@ import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import Dashboard from './dashboard'
 import Blocks from './block'
 import Header from './header'
+import BlockDetail from './block/detail'
 
 const rootRoute = new RootRoute({
   component: () => (
@@ -22,11 +23,27 @@ const indexRoute = new Route({
 
 const blocksRoute = new Route({
   getParentRoute: () => rootRoute,
-  path: '/block',
+  path: '/block/',
+
   component: () => <Blocks />
 })
 
-const routeTree = rootRoute.addChildren([indexRoute, blocksRoute])
+export const blockDetailRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/block/$blockNumber/',
+  parseParams({ blockNumber }) {
+    return {
+      blockNumber: BigInt(blockNumber)
+    }
+  },
+  component: () => <BlockDetail />
+})
+
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  blocksRoute,
+  blockDetailRoute
+])
 
 export const router = new Router({ routeTree })
 

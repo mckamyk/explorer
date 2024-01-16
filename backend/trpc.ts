@@ -1,9 +1,11 @@
 import { initTRPC } from "@trpc/server";
-import { getBlocks, getBlocksArgs, getBlocksReturn, latestBlocksSummary, latestTransactions } from "./client";
+import { latestBlocksSummary, latestTransactions } from "./client";
+import { getBlocks, getBlocksArgs } from './api/blocks'
 import { z } from 'zod'
 import { txDefault } from "./zod/transaction";
 import superjson from 'superjson'
-import { blockLight } from "./zod/blocks";
+import { blockDefault, blockLight } from "./zod/blocks";
+import { tryGetBlock } from "./api/blocks";
 
 
 const t = initTRPC.create({
@@ -16,9 +18,12 @@ const r = t.router
 export const appRouter = r({
   latestBlocks: p.output(z.array(blockLight)).query(latestBlocksSummary),
   latestTransactions: p.output(z.array(txDefault)).query(latestTransactions),
-  getBlocks: p.input(getBlocksArgs.default({})).output(getBlocksReturn).query(({ input }) => {
+  getBlocks: p.input(getBlocksArgs.default({})).output(z.array(blockLight)).query(({ input }) => {
     return getBlocks(input)
-  })
+  }),
+  getBlockDetail: p.input(z.bigint()).output(blockDefault).query(({ input }) => {
+    return tryGetBlock(input)
+  }),
 })
 
 export type AppRouter = typeof appRouter

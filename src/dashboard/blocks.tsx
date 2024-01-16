@@ -16,7 +16,7 @@ export default () => {
           <div key={block.hash} className="h-[65px] flex gap-4 border-b-white/20 border-b last:border-b-0 items-center py-2">
             <CubeIcon className="h-8 w-8 text-gray-700" />
             <div className="flex flex-col items-center">
-              <div>{block.number.toLocaleString()}</div>
+              <Link className="text-blue-500 underline" to="/block/$blockNumber" params={{ blockNumber: block.number }}>{block.number.toLocaleString()}</Link>
               <div className="text-xs">{timeDiff(block.timestamp)}</div>
             </div>
 
