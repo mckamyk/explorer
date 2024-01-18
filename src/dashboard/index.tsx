@@ -1,5 +1,5 @@
-import Blocks from "./blocks"
-import Transactions from "./transactions"
+import Blocks from "./blocksSummary"
+import Transactions from "./txSummary"
 
 export default () => {
   return (

@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "520a0fa7-5a7f-47da-9bc0-38ca2f4b3045",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "effa1471-de20-450f-b5b3-8d65137ed483",
+  "prevId": "520a0fa7-5a7f-47da-9bc0-38ca2f4b3045",
   "tables": {
     "blocks": {
       "name": "blocks",
@@ -86,6 +86,13 @@
         },
         "extraData": {
           "name": "extraData",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "extraDataParsed": {
+          "name": "extraDataParsed",
           "type": "text",
           "primaryKey": false,
           "notNull": false,

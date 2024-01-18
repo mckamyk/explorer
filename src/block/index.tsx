@@ -2,13 +2,14 @@ import { formatEther } from "viem"
 import { trpc } from "../Providers"
 import { shortAddr, timeDiff } from "../utilities/utils"
 import { useEffect, useRef } from "react"
+import { Link } from "@tanstack/react-router"
 
 export default () => {
   const { data } = trpc.getBlocks.useQuery()
 
   return (
-    <div className="flex justify-center">
-      <div className="max-w-[1400px] w-full">
+    <div className="flex justify-center my-10">
+      <div className="max-w-[1400px] w-full bg-black/25 rounded-lg overflow-clip shadow-white/10 shadow-lg">
         <div className="grid grid-cols-10 px-2 h-8 border-b border-b-white/15 items-center font-bold text-sm">
           <div className="text-center">Number</div>
           <div className="text-center">Age</div>
@@ -22,8 +23,8 @@ export default () => {
         </div>
         <div className="flex flex-col">
           {data && data.map(block => (
-            <div key={block.number} className="bg-black grid grid-cols-10 px-2 py-2 border-b border-b-white/15 items-center">
-              <div className="text-center">{block.number.toLocaleString()}</div>
+            <div key={block.number} className="grid grid-cols-10 px-2 py-2 border-b border-b-white/15 items-center">
+              <Link to="/block/$blockNumber" params={{ blockNumber: Number(block.number) }} className="text-center underline text-blue-500">{block.number.toLocaleString()}</Link>
               <div className="text-center">{timeDiff(block.timestamp)}</div>
               <div className="text-center">{block.numTransactions}</div>
               <div>{shortAddr(block.recipient)}</div>

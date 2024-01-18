@@ -14,6 +14,10 @@ const blockBase = z.object({
   baseFee: z.bigint({ coerce }),
   burntFees: z.bigint({ coerce }),
   numTransactions: z.number(),
+  extraData: z.string({ coerce }).optional(),
+  extraDataParsed: z.string({ coerce }),
+  size: z.bigint({ coerce }),
+  totalDifficulty: z.bigint({ coerce }),
 })
 
 export const blockLight = blockBase.transform(block => {
@@ -60,6 +64,10 @@ export const blockDb = z.object({
   baseFee: z.number({ coerce }),
   burntFees: z.string({ coerce }),
   numTransactions: z.number({ coerce }),
+  size: z.number({ coerce }),
+  extraData: z.string({ coerce }),
+  extraDataParsed: z.string({ coerce }),
+  totalDifficulty: z.string({ coerce }),
 }).strict()
 
 export type BlockDb = z.infer<typeof blockDb>

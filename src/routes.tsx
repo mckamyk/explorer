@@ -7,11 +7,15 @@ import BlockDetail from './block/detail'
 
 const rootRoute = new RootRoute({
   component: () => (
-    <div>
+    <>
       <Header />
-      <Outlet />
+      <div className="flex justify-center my-10">
+        <div className="max-w-[1200px] w-full">
+          <Outlet />
+        </div>
+      </div>
       <TanStackRouterDevtools />
-    </div>
+    </>
   )
 })
 
@@ -33,7 +37,7 @@ export const blockDetailRoute = new Route({
   path: '/block/$blockNumber/',
   parseParams({ blockNumber }) {
     return {
-      blockNumber: BigInt(blockNumber)
+      blockNumber: Number(blockNumber)
     }
   },
   component: () => <BlockDetail />

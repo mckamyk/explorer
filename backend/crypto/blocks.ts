@@ -17,6 +17,7 @@ export const getNetworkBlock = async (blockNumber: bigint) => {
     }
   })
 
+
   return blockDefault.parse({
     timestamp: Number(b.timestamp) * 1000,
     number: b.number,
@@ -29,5 +30,11 @@ export const getNetworkBlock = async (blockNumber: bigint) => {
     transactions: newTx,
     hash: b.hash,
     numTransactions: b.transactions.length,
+    size: b.size,
+    extraData: b.extraData,
+    extraDataParsed: Buffer.from(b.extraData.slice(2), 'hex').toString('ascii'),
+    totalDifficulty: b.totalDifficulty,
   })
 }
+
+export const ingestBlock = getNetworkBlock

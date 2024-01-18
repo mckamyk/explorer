@@ -1,4 +1,4 @@
-import { and, eq, gte, lte, } from 'drizzle-orm'
+import { and, desc, eq, gte, lte, } from 'drizzle-orm'
 import { client } from '../crypto/client.ts'
 import db from '../db'
 import { BlockDefault, BlockLight, blockDefault, blockLight } from '../zod/blocks.ts'
@@ -85,6 +85,7 @@ export const getBlocks = async ({ page, pageSize }: z.infer<typeof getBlocksArgs
 
   const allBlocks = db.query.blocks.findMany({
     where: and(lte(blocks.number, max), gte(blocks.number, min)),
+    orderBy: [desc(blocks.number)]
   }).then(r => r.map(b => blockLight.parse(b)))
 
   return allBlocks

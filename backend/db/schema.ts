@@ -11,7 +11,11 @@ export const blocks = sqliteTable('blocks', {
   gasLimit: text('gasLimit').notNull(),
   baseFee: integer('baseFee').notNull(),
   burntFees: text('burntFees').notNull(),
-  numTransactions: integer('numTransactions').notNull()
+  numTransactions: integer('numTransactions').notNull(),
+  size: integer('size').notNull(),
+  extraData: text('extraData'),
+  extraDataParsed: text('extraDataParsed'),
+  totalDifficulty: text('totalDifficulty'),
 })
 
 export type Block = typeof blocks.$inferSelect
@@ -34,7 +38,7 @@ export const blockTxnRelations = relations(blocks, ({ many }) => ({
 }))
 
 export const txnBlockRelation = relations(transactions, ({ one }) => ({
-  blockNumber: one(blocks, {
+  block: one(blocks, {
     fields: [transactions.blockNumber],
     references: [blocks.number]
   })

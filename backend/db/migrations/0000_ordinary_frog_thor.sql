@@ -8,7 +8,9 @@ CREATE TABLE `blocks` (
 	`gasLimit` text NOT NULL,
 	`baseFee` integer NOT NULL,
 	`burntFees` text NOT NULL,
-	`numTransactions` integer NOT NULL
+	`numTransactions` integer NOT NULL,
+	`size` integer NOT NULL,
+	`extraData` text
 );
 --> statement-breakpoint
 CREATE TABLE `transactions` (

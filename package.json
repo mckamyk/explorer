@@ -8,6 +8,7 @@
     "dev:i": "bunx concurrently vite 'bun run --inspect --hot ./backend/index.ts'",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "reindex": "bun run backend/scripts/reindex.ts",
     "preview": "vite preview"
   },
   "dependencies": {

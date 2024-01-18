@@ -21,8 +21,8 @@ export const appRouter = r({
   getBlocks: p.input(getBlocksArgs.default({})).output(z.array(blockLight)).query(({ input }) => {
     return getBlocks(input)
   }),
-  getBlockDetail: p.input(z.bigint()).output(blockDefault).query(({ input }) => {
-    return tryGetBlock(input)
+  getBlockDetail: p.input(z.number()).output(blockDefault).query(({ input }) => {
+    return tryGetBlock(BigInt(input))
   }),
 })
 
