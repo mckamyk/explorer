@@ -1,6 +1,5 @@
 import { client } from '../crypto/client.ts'
 import { BlockDefault, BlockLight, blockDefault, blockLight } from '../zod/blocks.ts'
-import { getNetworkBlock } from '../crypto/blocks'
 import { getDbBlock, getDbBlockLight, ingestBlock } from '../db/blocks.ts'
 import { z } from 'zod'
 import { prisma } from '../db/prisma.ts'
@@ -11,20 +10,7 @@ export const tryGetBlockLight = async (number: bigint): Promise<BlockLight> => {
     return fromDb
   }
 
-  const b = await getNetworkBlock(number).then(b => blockDefault.parse(b)).then()
-  const bDb = b.toDb()
-
-  await prisma.block.create({
-    data: {
-      ...bDb,
-      transactions: {
-        create: b.transactions.map(t => t.toDb())
-      }
-    },
-    include: {
-      transactions: true
-    },
-  })
+  await ingestBlock(number)
 
   const newB = await getDbBlockLight(number)
   if (!newB) throw new Error(`Error ingesting new block ${number}`)

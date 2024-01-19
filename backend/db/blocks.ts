@@ -18,10 +18,12 @@ export const ingestBlock = async (blockNumber: bigint) => {
     create: {
       ...block.toDb(),
       transactions: {
-        create: block.transactions.map(tx => ({
-          ...txDb.parse(tx),
-          blockNumber: undefined
-        }))
+        createMany: {
+          data: block.transactions.map(tx => ({
+            ...txDb.parse(tx),
+            blockNumber: undefined
+          }))
+        }
       }
     }
   })

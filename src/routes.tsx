@@ -5,6 +5,7 @@ import Blocks from './block'
 import Header from './header'
 import BlockDetail from './block/detail'
 import Transaction from './transaction'
+import TransactionDetail from './transaction/detail'
 
 const rootRoute = new RootRoute({
   component: () => (
@@ -51,11 +52,23 @@ const transactionRoute = new Route({
   component: () => <Transaction />
 })
 
+export const transactionDetailRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/transaction/$hash/',
+  parseParams({ hash }) {
+    return {
+      hash: String(hash)
+    }
+  },
+  component: () => <TransactionDetail />
+})
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   blocksRoute,
   blockDetailRoute,
-  transactionRoute
+  transactionRoute,
+  transactionDetailRoute
 ])
 
 export const router = new Router({ routeTree })
