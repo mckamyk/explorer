@@ -1,8 +1,25 @@
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import db from "../db";
-import { TxDefault, txDefault } from "../zod/transaction";
+import { type TxDefault, txDefault } from "../zod/transaction";
 import { transactions, blocks } from '../db/schema'
 import { getNetworkBlock } from '../crypto/blocks'
+import { z } from "zod";
+
+export const getTransactionsArgs = z.object({
+  pageSize: z.number().default(20),
+  page: z.number().default(0)
+})
+
+export const getTransactions = async (args: z.infer<typeof getTransactionsArgs>): Promise<TxDefault[]> => {
+  const { page, pageSize } = args
+  const resp = await db.query.transactions.findMany({
+    orderBy: [desc(transactions.blockNumber)],
+    limit: pageSize,
+    offset: pageSize * page,
+  }).then(txs => txs.map(tx => txDefault.parse(tx)))
+
+  return resp
+}
 
 export const getTransactionsInBLock = async (blockNumber: bigint): Promise<TxDefault[]> => {
   const txns = await db.query.transactions.findMany({

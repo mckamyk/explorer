@@ -4,6 +4,7 @@ import Dashboard from './dashboard'
 import Blocks from './block'
 import Header from './header'
 import BlockDetail from './block/detail'
+import Transaction from './transaction'
 
 const rootRoute = new RootRoute({
   component: () => (
@@ -43,10 +44,18 @@ export const blockDetailRoute = new Route({
   component: () => <BlockDetail />
 })
 
+const transactionRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/transaction/',
+
+  component: () => <Transaction />
+})
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   blocksRoute,
-  blockDetailRoute
+  blockDetailRoute,
+  transactionRoute
 ])
 
 export const router = new Router({ routeTree })

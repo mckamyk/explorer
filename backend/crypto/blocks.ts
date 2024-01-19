@@ -4,16 +4,14 @@ import { client } from "./client"
 export const getNetworkBlock = async (blockNumber: bigint) => {
   const b = await client.getBlock({ blockNumber, includeTransactions: true })
 
-  const fees = b.transactions.map(async t => {
+  const newTx = b.transactions.map(async t => {
     const receipt = await client.getTransactionReceipt({ hash: t.hash })
-    return receipt.gasUsed * (t.gasPrice! - b.baseFeePerGas!)
-  })
-
-  const newTx = b.transactions.map(t => {
     return {
       ...t,
       timestamp: Number(b.timestamp) * 1000,
-      blockNumber: b.number
+      blockNumber: b.number,
+      burntFees: receipt.gasUsed * (t.gasPrice! - b.baseFeePerGas!),
+      paidFees: receipt.gasUsed * receipt.effectiveGasPrice,
     }
   })
 
@@ -23,11 +21,11 @@ export const getNetworkBlock = async (blockNumber: bigint) => {
     number: b.number,
     gasUsed: b.gasUsed,
     gasLimit: b.gasLimit,
-    reward: await Promise.all(fees).then(fee => fee.reduce((p, c) => p + c)),
+    reward: await Promise.all(newTx).then(tx => tx.reduce((p, c) => p + c.burntFees, BigInt(0))),
     baseFee: b.baseFeePerGas,
     burntFees: b.baseFeePerGas! * b.gasUsed,
     recipient: b.miner,
-    transactions: newTx,
+    transactions: await Promise.all(newTx),
     hash: b.hash,
     numTransactions: b.transactions.length,
     size: b.size,

@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { ingestBlock } from "../crypto/blocks";
 import db from "../db";
-import { blocks } from "../db/schema";
+import { blocks, transactions } from "../db/schema";
 
 const numbers = await db.query.blocks.findMany({
   columns: {
@@ -9,16 +9,48 @@ const numbers = await db.query.blocks.findMany({
   },
 }).then(r => r.map(b => BigInt(b.number)))
 
-const networkBlocks = await Promise.all(numbers.map(ingestBlock)).then(bs => bs.map(b => b.toDb()))
+const networkBlocks = await Promise.all(numbers.map(ingestBlock))
+const networkTxns = networkBlocks.map(b => b.transactions).flat()
 
-const responses = await Promise.allSettled(networkBlocks.map(async b => {
-  return db.update(blocks).set({ ...b }).where(eq(blocks.number, b.number))
-}))
+// @ts-ignore
+const updates = await db.batch([
+  ...networkBlocks.map(b => {
+    const d = b.toDb()
+    return db.update(blocks).set(d).where(eq(blocks.number, d.number))
+  }),
+  ...networkTxns.map(t => {
+    const x = t.toDb()
+    return db.update(transactions).set(x).where(eq(transactions.hash, x.hash))
+  })
+])
 
-const counts = responses.reduce((p, c) => {
-  p[c.status]++
-  return p
-}, { fulfilled: 0, rejected: 0 })
+console.log(updates)
 
-console.table(counts)
+// const blocksResponses = Promise.allSettled(networkBlocks.map(async b => {
+//   const toInsert = b.toDb()
+//   return db.update(blocks).set(toInsert).where(eq(blocks.number, toInsert.number))
+// }))
+// const txResponses = Promise.allSettled(networkTxns.map(async t => {
+//   const toInsert = t.toDb();
+//   return db.update(transactions).set(toInsert).where(eq(transactions.hash, toInsert.hash))
+// }))
+
+
+// const blockCounts = (await blocksResponses).reduce((p, c) => {
+//   p[c.status]++
+//   return p
+// }, { fulfilled: 0, rejected: 0 })
+// const txCounts = (await txResponses).reduce((p, c) => {
+//   p[c.status]++
+//   return p
+// }, { fulfilled: 0, rejected: 0 })
+
+// console.log("Block Counts:")
+// console.table(blockCounts)
+// console.log("Txn Counts:")
+// console.table(txCounts)
+
+// const foo = (await txResponses).filter(r => r.status === 'rejected')
+
+// console.log(foo[0])
 

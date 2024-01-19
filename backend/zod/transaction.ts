@@ -9,10 +9,12 @@ export const txDefault = z.object({
   timestamp: z.number({ coerce }),
   value: z.bigint({ coerce }),
   blockNumber: z.bigint({ coerce }),
+  burntFees: z.bigint({ coerce }),
+  paidFees: z.bigint({ coerce }),
 }).transform(tx => {
   return {
     ...tx,
-    toDb: () => txDb.parse(tx)
+    toDb: () => txDb.parse(tx),
   }
 })
 
@@ -26,11 +28,8 @@ export const txDb = z.object({
   timestamp: z.number({ coerce }),
   value: z.string({ coerce }),
   blockNumber: z.number({ coerce }),
-}).transform(tx => {
-  return {
-    ...tx,
-    toDefault: () => txDefault.parse(tx)
-  }
+  burntFees: z.string({ coerce }),
+  paidFees: z.string({ coerce })
 })
 
 export type TxDb = z.infer<typeof txDb>

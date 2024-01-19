@@ -1,6 +1,6 @@
 import { formatEther } from 'viem'
 import { trpc } from '../Providers'
-import { CubeIcon } from '@heroicons/react/24/outline'
+import { ArrowRightIcon, CubeIcon } from '@heroicons/react/24/outline'
 import { shortAddr, timeDiff } from '../utilities/utils';
 import { Link } from '@tanstack/react-router';
 
@@ -33,6 +33,7 @@ export default () => {
       </div>
       <Link to="/block" className="flex items-center justify-center py-2 transition-colors bg-white/5 hover:bg-white/15">
         <span className="font-bold">View All Blocks</span>
+        <ArrowRightIcon className="ml-4 h-4 w-4" />
       </Link>
     </div>
   )

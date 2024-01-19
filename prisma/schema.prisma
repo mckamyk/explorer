@@ -1,0 +1,42 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Block {
+  number          BigInt @unique
+  hash            String
+  recipient       String
+  timestamp       BigInt
+  gasUsed         String
+  gasLimit        String
+  baseFee         BigInt
+  burntFees       String
+  numTransactions Int
+  size            BigInt
+  extraData       String
+  extraDataParsed String
+  totalDifficulty String
+
+  transactions Transaction[]
+}
+
+model Transaction {
+  hash        String  @unique
+  from        String
+  to          String?
+  timestamp   BigInt
+  value       String
+  blockNumber BigInt
+  burntFees   String
+  paidFees    String
+
+  block Block @relation(fields: [blockNumber], references: [number])
+}

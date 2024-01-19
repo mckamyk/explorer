@@ -28,6 +28,8 @@ export const transactions = sqliteTable('transactions', {
   timestamp: integer("timestamp").notNull(),
   value: text("value"),
   blockNumber: integer('blockNumber').notNull(),
+  burntFees: text("burntFees"),
+  paidFees: text("paidFees"),
 })
 
 export type Transaction = typeof transactions.$inferSelect

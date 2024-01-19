@@ -1,14 +1,15 @@
 import { formatEther } from 'viem'
 import { trpc } from '../Providers'
-import { DocumentTextIcon } from '@heroicons/react/24/outline'
+import { ArrowRightIcon, DocumentTextIcon } from '@heroicons/react/24/outline'
 import { shortAddr, timeDiff } from '../utilities/utils';
+import { Link } from '@tanstack/react-router';
 
 export default () => {
   const { data, isLoading } = trpc.latestTransactions.useQuery();
 
   return (
     <div className="w-[600px] bg-black/25 rounded-lg shadow shadow-white/25">
-      <div className="p-2 font-bold">Latest Blocks</div>
+      <div className="p-2 font-bold">Latest Transactions</div>
       <div className="p-2 flex flex-col gap-y-1">
         {isLoading && (new Array(10).fill(0)).map((_, i) => <Loading key={i} />)}
         {data && data.map(txn => (
@@ -30,6 +31,10 @@ export default () => {
           </div>
         ))}
       </div>
+      <Link to="/transaction" className="flex items-center justify-center py-2 transition-colors bg-white/5 hover:bg-white/15">
+        <span className="font-bold">View All Transactions</span>
+        <ArrowRightIcon className="ml-4 h-4 w-4" />
+      </Link>
     </div>
   )
 }
