@@ -1,9 +1,7 @@
-import { desc, eq } from "drizzle-orm";
-import db from "../db";
 import { type TxDefault, txDefault } from "../zod/transaction";
-import { transactions, blocks } from '../db/schema'
 import { getNetworkBlock } from '../crypto/blocks'
 import { z } from "zod";
+import { prisma } from "../db/prisma";
 
 export const getTransactionsArgs = z.object({
   pageSize: z.number().default(20),
@@ -12,24 +10,37 @@ export const getTransactionsArgs = z.object({
 
 export const getTransactions = async (args: z.infer<typeof getTransactionsArgs>): Promise<TxDefault[]> => {
   const { page, pageSize } = args
-  const resp = await db.query.transactions.findMany({
-    orderBy: [desc(transactions.blockNumber)],
-    limit: pageSize,
-    offset: pageSize * page,
+  const resp = await prisma.transaction.findMany({
+    orderBy: {
+      blockNumber: 'desc'
+    },
+    take: pageSize,
+    skip: page * pageSize,
   }).then(txs => txs.map(tx => txDefault.parse(tx)))
 
   return resp
 }
 
-export const getTransactionsInBLock = async (blockNumber: bigint): Promise<TxDefault[]> => {
-  const txns = await db.query.transactions.findMany({
-    where: eq(transactions.blockNumber, Number(blockNumber))
-  })
+export const getLatestTransactions = async () => {
+  return prisma.transaction.findMany({
+    orderBy: {
+      blockNumber: 'desc'
+    },
+    take: 10
+  }).then(txs => txs.map(tx => txDefault.parse(tx)))
+}
 
-  if (txns) return txns.map(t => txDefault.parse(t))
+export const getTransactionsInBlock = async (blockNumber: bigint): Promise<TxDefault[]> => {
+  const txns = await prisma.transaction.findMany({
+    where: {
+      blockNumber
+    }
+  }).then(txs => txs.map(tx => txDefault.parse(tx)))
 
-  const isIngested = await db.query.blocks.findFirst({
-    where: eq(blocks.number, Number(blockNumber))
+  const isIngested = await prisma.block.findFirst({
+    where: {
+      number: blockNumber
+    }
   }).then(b => !!b)
 
   if (!isIngested) {
@@ -37,5 +48,5 @@ export const getTransactionsInBLock = async (blockNumber: bigint): Promise<TxDef
     return block.transactions
   }
 
-  return []
+  return txns
 }

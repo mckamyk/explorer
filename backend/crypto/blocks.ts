@@ -35,4 +35,3 @@ export const getNetworkBlock = async (blockNumber: bigint) => {
   })
 }
 
-export const ingestBlock = getNetworkBlock

@@ -27,7 +27,7 @@ export const txDb = z.object({
   hash: z.string().startsWith("0x"),
   timestamp: z.number({ coerce }),
   value: z.string({ coerce }),
-  blockNumber: z.number({ coerce }),
+  blockNumber: z.bigint({ coerce }),
   burntFees: z.string({ coerce }),
   paidFees: z.string({ coerce })
 })

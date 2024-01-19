@@ -54,17 +54,17 @@ export const blockDefault = blockBase.extend({
 export type BlockDefault = z.infer<typeof blockDefault>
 
 export const blockDb = z.object({
-  number: z.number({ coerce }),
+  number: z.bigint({ coerce }),
   hash: z.string().startsWith("0x"),
   recipient: z.string().startsWith("0x"),
   reward: z.string({ coerce }),
   timestamp: z.number({ coerce }),
   gasUsed: z.string({ coerce }),
   gasLimit: z.string({ coerce }),
-  baseFee: z.number({ coerce }),
+  baseFee: z.bigint({ coerce }),
   burntFees: z.string({ coerce }),
   numTransactions: z.number({ coerce }),
-  size: z.number({ coerce }),
+  size: z.bigint({ coerce }),
   extraData: z.string({ coerce }),
   extraDataParsed: z.string({ coerce }),
   totalDifficulty: z.string({ coerce }),

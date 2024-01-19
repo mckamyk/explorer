@@ -24,6 +24,7 @@ model Block {
   extraData       String
   extraDataParsed String
   totalDifficulty String
+  reward          String
 
   transactions Transaction[]
 }
