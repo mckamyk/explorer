@@ -5,7 +5,7 @@ import { txDefault } from "./zod/transaction";
 import superjson from 'superjson'
 import { blockDefault, blockLight } from "./zod/blocks";
 import { tryGetBlock } from "./api/blocks";
-import { getLatestTransactions, getTransactions, getTransactionsArgs } from "./api/transactions";
+import { getLatestTransactions, getTransactionDetail, getTransactions, getTransactionsArgs } from "./api/transactions";
 
 
 const t = initTRPC.create({
@@ -22,7 +22,10 @@ export const appRouter = r({
   getBlocks: p.input(getBlocksArgs.default({})).output(z.array(blockLight)).query(({ input }) => getBlocks(input)),
   getBlockDetail: p.input(z.number()).output(blockDefault).query(({ input }) => tryGetBlock(BigInt(input))),
 
-  getTransactions: p.input(getTransactionsArgs.default({})).output(z.array(txDefault)).query(({ input }) => getTransactions(input))
+  getTransactions: p.input(getTransactionsArgs.default({})).output(z.array(txDefault)).query(({ input }) => getTransactions(input)),
+  getTransactionDetail: p.input(z.string().startsWith("0x")).output(txDefault).query(({ input }) => {
+    return getTransactionDetail(input)
+  })
 })
 
 export type AppRouter = typeof appRouter

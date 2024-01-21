@@ -8,6 +8,14 @@ export const getTransactionsArgs = z.object({
   page: z.number().default(0)
 })
 
+export const getTransactionDetail = async (hash: string) => {
+  const resp = await prisma.transaction.findUnique({
+    where: { hash }
+  })
+
+  return txDefault.parse(resp)
+}
+
 export const getTransactions = async (args: z.infer<typeof getTransactionsArgs>): Promise<TxDefault[]> => {
   const { page, pageSize } = args
   const resp = await prisma.transaction.findMany({

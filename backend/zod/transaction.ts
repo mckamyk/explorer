@@ -11,6 +11,7 @@ export const txDefault = z.object({
   blockNumber: z.bigint({ coerce }),
   burntFees: z.bigint({ coerce }),
   paidFees: z.bigint({ coerce }),
+  gasPrice: z.bigint({ coerce }),
 }).transform(tx => {
   return {
     ...tx,
@@ -29,7 +30,8 @@ export const txDb = z.object({
   value: z.string({ coerce }),
   blockNumber: z.bigint({ coerce }),
   burntFees: z.string({ coerce }),
-  paidFees: z.string({ coerce })
+  paidFees: z.string({ coerce }),
+  gasPrice: z.string({ coerce }),
 })
 
 export type TxDb = z.infer<typeof txDb>

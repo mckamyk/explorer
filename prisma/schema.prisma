@@ -38,6 +38,7 @@ model Transaction {
   blockNumber BigInt
   burntFees   String
   paidFees    String
+  gasPrice    String
 
   block Block @relation(fields: [blockNumber], references: [number])
 }
