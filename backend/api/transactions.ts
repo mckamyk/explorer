@@ -1,7 +1,19 @@
-import { type TxDefault, txDefault } from "../zod/transaction";
+import { type TxDefault, txDefault, TxEnriched, txEnriched, TxBase } from "../zod/transaction";
 import { getNetworkBlock } from '../crypto/blocks'
 import { z } from "zod";
 import { prisma } from "../db/prisma";
+import { getEns } from "./helpers";
+
+export const enrichTransaction = async (tx: TxBase): Promise<TxEnriched> => {
+  const fromProm = getEns(tx.from)
+  const toProm = tx.to ? getEns(tx.to) : Promise.resolve(null)
+
+  return txEnriched.parse({
+    ...tx,
+    fromEns: await fromProm,
+    toEns: await toProm
+  } as TxEnriched)
+}
 
 export const getTransactionsArgs = z.object({
   pageSize: z.number().default(20),

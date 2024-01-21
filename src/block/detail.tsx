@@ -45,7 +45,7 @@ export default () => {
 
         <div className="py-4 grid grid-cols-4">
           <div className="col-span-1">Fee Recipient:</div>
-          <div className="col-span-3">{data.recipient}</div>
+          <div className="col-span-3">{data.recipientEns && `(${data.recipientEns}) `}{data.recipient}</div>
         </div>
         <div className="py-4 grid grid-cols-4">
           <div className="col-span-1">Block Reward:</div>

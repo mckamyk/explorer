@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { txDefault } from './transaction'
+import { enrichBlock } from '../api/blocks'
 
 const coerce = true
 
@@ -19,6 +20,8 @@ const blockBase = z.object({
   size: z.bigint({ coerce }),
   totalDifficulty: z.bigint({ coerce }),
 })
+
+export type BlockBase = z.infer<typeof blockBase>
 
 export const blockLight = blockBase.transform(block => {
   return {
@@ -47,6 +50,9 @@ export const blockDefault = blockBase.extend({
       const newBlock = { ...block } as any;
       delete newBlock['transatction']
       return blockLight.parse(newBlock)
+    },
+    enrich: async () => {
+      return enrichBlock(block)
     }
   }
 })
@@ -72,3 +78,8 @@ export const blockDb = z.object({
 
 export type BlockDb = z.infer<typeof blockDb>
 
+export const blockEnriched = blockBase.extend({
+  recipientEns: z.string().nullable(),
+})
+
+export type BlockEnriched = z.infer<typeof blockEnriched>

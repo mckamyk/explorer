@@ -1,8 +1,18 @@
 import { client } from '../crypto/client.ts'
-import { BlockDefault, BlockLight, blockDefault, blockLight } from '../zod/blocks.ts'
+import { BlockBase, BlockDefault, BlockEnriched, BlockLight, blockDefault, blockEnriched, blockLight } from '../zod/blocks.ts'
 import { getDbBlock, getDbBlockLight, ingestBlock } from '../db/blocks.ts'
 import { z } from 'zod'
 import { prisma } from '../db/prisma.ts'
+import { getEns } from './helpers.ts'
+
+export const enrichBlock = async (block: BlockBase): Promise<BlockEnriched> => {
+  const recipientEns = await getEns(block.recipient)
+
+  return blockEnriched.parse({
+    ...block,
+    recipientEns
+  } as BlockEnriched)
+}
 
 export const tryGetBlockLight = async (number: bigint): Promise<BlockLight> => {
   const fromDb = await getDbBlockLight(number)

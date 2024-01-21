@@ -16,7 +16,7 @@ export default () => {
           <div key={txn.hash} className="h-[65px] flex gap-4 border-b-white/20 border-b last:border-b-0 items-center py-2">
             <DocumentTextIcon className="h-8 w-8 text-gray-700" />
             <div className="flex flex-col items-center">
-              <div>{shortAddr(txn.hash)}</div>
+              <Link className="text-blue-500 underline" to="/transaction/$hash" params={{ hash: txn.hash }}>{shortAddr(txn.hash)}</Link>
               <div className="text-xs">{timeDiff(txn.timestamp)}</div>
             </div>
 
@@ -26,7 +26,7 @@ export default () => {
             </div>
 
             <div className="rounded-full bg-white/10 px-3 py-1">
-              {Number(formatEther(BigInt(txn.value))).toFixed(3)} eth
+              {Number(formatEther(txn.value)).toFixed(3)} eth
             </div>
           </div>
         ))}
