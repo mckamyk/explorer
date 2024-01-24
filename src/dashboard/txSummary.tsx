@@ -16,7 +16,7 @@ export default () => {
           <div key={txn.hash} className="h-[65px] flex gap-4 border-b-white/20 border-b last:border-b-0 items-center py-2">
             <DocumentTextIcon className="h-8 w-8 text-gray-700" />
             <div className="flex flex-col items-center">
-              <Link className="text-blue-500 underline" to="/transaction/$hash" params={{ hash: txn.hash }}>{shortAddr(txn.hash)}</Link>
+              <Link className="text-blue-500 underline" to="/tx/$hash" params={{ hash: txn.hash }}>{shortAddr(txn.hash)}</Link>
               <div className="text-xs">{timeDiff(txn.timestamp)}</div>
             </div>
 
@@ -31,7 +31,7 @@ export default () => {
           </div>
         ))}
       </div>
-      <Link to="/transaction" className="flex items-center justify-center py-2 transition-colors bg-white/5 hover:bg-white/15">
+      <Link to="/tx" className="flex items-center justify-center py-2 transition-colors bg-white/5 hover:bg-white/15">
         <span className="font-bold">View All Transactions</span>
         <ArrowRightIcon className="ml-4 h-4 w-4" />
       </Link>

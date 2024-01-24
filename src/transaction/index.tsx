@@ -22,7 +22,7 @@ export default () => {
         <div className="flex flex-col">
           {data && data.map(txn => (
             <div key={txn.hash} className="grid grid-cols-8 px-2 py-2 border-b border-b-white/15 items-center">
-              <Link to="/transaction/$hash" params={{ hash: txn.hash }} className="underline text-blue-500">{txn.hash.slice(0, 10)}...</Link>
+              <Link to="/tx/$hash" params={{ hash: txn.hash }} className="underline text-blue-500">{txn.hash.slice(0, 10)}...</Link>
               <div className="text-red-500">NYI</div>
               <Link to="/block/$blockNumber" params={{ blockNumber: Number(txn.blockNumber) }} className="underline text-blue-500">{txn.blockNumber.toLocaleString()}</Link>
               <div>{timeDiff(txn.timestamp)}</div>

@@ -47,14 +47,14 @@ export const blockDetailRoute = new Route({
 
 const transactionRoute = new Route({
   getParentRoute: () => rootRoute,
-  path: '/transaction/',
+  path: '/tx/',
 
   component: () => <Transaction />
 })
 
 export const transactionDetailRoute = new Route({
   getParentRoute: () => rootRoute,
-  path: '/transaction/$hash/',
+  path: '/tx/$hash/',
   parseParams({ hash }) {
     return {
       hash: String(hash)
